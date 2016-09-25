@@ -1,18 +1,22 @@
 [[query-dsl-query-string-query]]
-== Query String Query
+=== Query String Query
 
 A query that uses a query parser in order to parse its content. Here is
 an example:
 
 [source,js]
 --------------------------------------------------
+GET /_search
 {
-    "query_string" : {
-        "default_field" : "content",
-        "query" : "this AND that OR thus"
+    "query": {
+        "query_string" : {
+            "default_field" : "content",
+            "query" : "this AND that OR thus"
+        }
     }
 }
 --------------------------------------------------
+// CONSOLE
 
 The `query_string` top level parameters include:
 
@@ -80,7 +84,7 @@ providing text to a numeric field) to be ignored.
 Defaults to `ROOT`.
 
 |`time_zone` | Time Zone to be applied to any range query related to dates. See also
-http://joda-time.sourceforge.net/api-release/org/joda/time/DateTimeZone.html[JODA timezone].
+http://www.joda.org/joda-time/apidocs/org/joda/time/DateTimeZone.html[JODA timezone].
 |=======================================================================
 
 When a multi term query is being generated, one can control how it gets
@@ -89,7 +93,7 @@ rewritten using the
 parameter.
 
 [float]
-=== Default Field
+==== Default Field
 
 When not explicitly specifying the field to search on in the query
 string syntax, the `index.query.default_field` will be used to derive
@@ -99,7 +103,7 @@ So, if `_all` field is disabled, it might make sense to change it to set
 a different default field.
 
 [float]
-=== Multi Field
+==== Multi Field
 
 The `query_string` query can also run against multiple fields. Fields can be
 provided via the `"fields"` parameter (example below).
@@ -113,25 +117,33 @@ For example, the following query
 
 [source,js]
 --------------------------------------------------
+GET /_search
 {
-    "query_string" : {
-        "fields" : ["content", "name"],
-        "query" : "this AND that"
+    "query": {
+        "query_string" : {
+            "fields" : ["content", "name"],
+            "query" : "this AND that"
+        }
     }
 }
 --------------------------------------------------
+// CONSOLE
 
 matches the same words as
 
 
 [source,js]
 --------------------------------------------------
+GET /_search
 {
-    "query_string": {
-      "query": "(content:this OR name:this) AND (content:that OR name:that)"
+    "query": {
+        "query_string": {
+            "query": "(content:this OR name:this) AND (content:that OR name:that)"
+        }
     }
 }
 --------------------------------------------------
+// CONSOLE
 
 Since several queries are generated from the individual search terms,
 combining them can be automatically done using either a `dis_max` query or a
@@ -140,14 +152,18 @@ notation):
 
 [source,js]
 --------------------------------------------------
+GET /_search
 {
-    "query_string" : {
-        "fields" : ["content", "name^5"],
-        "query" : "this AND that OR thus",
-        "use_dis_max" : true
+    "query": {
+        "query_string" : {
+            "fields" : ["content", "name^5"],
+            "query" : "this AND that OR thus",
+            "use_dis_max" : true
+        }
     }
 }
 --------------------------------------------------
+// CONSOLE
 
 Simple wildcard can also be used to search "within" specific inner
 elements of the document. For example, if we have a `city` object with
@@ -156,14 +172,18 @@ search on all "city" fields:
 
 [source,js]
 --------------------------------------------------
+GET /_search
 {
-    "query_string" : {
-        "fields" : ["city.*"],
-        "query" : "this AND that OR thus",
-        "use_dis_max" : true
+    "query": {
+        "query_string" : {
+            "fields" : ["city.*"],
+            "query" : "this AND that OR thus",
+            "use_dis_max" : true
+        }
     }
 }
 --------------------------------------------------
+// CONSOLE
 
 Another option is to provide the wildcard fields search in the query
 string itself (properly escaping the `*` sign), for example:
@@ -188,13 +208,17 @@ introduced fields included). For example:
 
 [source,js]
 --------------------------------------------------
+GET /_search
 {
-    "query_string" : {
-        "fields" : ["content", "name.*^5"],
-        "query" : "this AND that OR thus",
-        "use_dis_max" : true
+    "query": {
+        "query_string" : {
+            "fields" : ["content", "name.*^5"],
+            "query" : "this AND that OR thus",
+            "use_dis_max" : true
+        }
     }
 }
 --------------------------------------------------
+// CONSOLE
 
 include::query-string-syntax.asciidoc[]

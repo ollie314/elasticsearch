@@ -1,5 +1,5 @@
 [[query-dsl-simple-query-string-query]]
-== Simple Query String Query
+=== Simple Query String Query
 
 A query that uses the SimpleQueryParser to parse its context. Unlike the
 regular `query_string` query, the `simple_query_string` query will never
@@ -8,15 +8,19 @@ an example:
 
 [source,js]
 --------------------------------------------------
+GET /_search
 {
+  "query": {
     "simple_query_string" : {
         "query": "\"fried eggs\" +(eggplant | potato) -frittata",
         "analyzer": "snowball",
         "fields": ["body^5","_all"],
         "default_operator": "and"
     }
+  }
 }
 --------------------------------------------------
+// CONSOLE
 
 The `simple_query_string` top level parameters include:
 
@@ -40,9 +44,14 @@ creating composite queries.
 |`flags` |Flags specifying which features of the `simple_query_string` to
 enable. Defaults to `ALL`.
 
-|`lowercase_expanded_terms` | Whether terms of prefix and fuzzy queries are to
+|`lowercase_expanded_terms` | Whether terms of prefix and fuzzy queries should
 be automatically lower-cased or not (since they are not analyzed). Defaults to
-true.
+`true`.
+
+|`analyze_wildcard` | Whether terms of prefix queries should be automatically
+analyzed or not. If `true` a best effort will be made to analyze the prefix. However,
+some analyzers will be not able to provide a meaningful results
+based just on the prefix of a term. Defaults to `false`.
 
 |`locale` | Locale that should be used for string conversions.
 Defaults to `ROOT`.
@@ -57,7 +66,7 @@ Defaults to `ROOT`.
 |=======================================================================
 
 [float]
-==== Simple Query String Syntax
+===== Simple Query String Syntax
 The `simple_query_string` supports the following special characters:
 
 * `+` signifies AND operation
@@ -73,7 +82,7 @@ In order to search for any of these special characters, they will need to
 be escaped with `\`.
 
 [float]
-=== Default Field
+==== Default Field
 When not explicitly specifying the field to search on in the query
 string syntax, the `index.query.default_field` will be used to derive
 which field to search on. It defaults to `_all` field.
@@ -82,36 +91,44 @@ So, if `_all` field is disabled, it might make sense to change it to set
 a different default field.
 
 [float]
-=== Multi Field
+==== Multi Field
 The fields parameter can also include pattern based field names,
 allowing to automatically expand to the relevant fields (dynamically
 introduced fields included). For example:
 
 [source,js]
 --------------------------------------------------
+GET /_search
 {
-    "simple_query_string" : {
-        "fields" : ["content", "name.*^5"],
-        "query" : "foo bar baz"
+    "query": {
+        "simple_query_string" : {
+            "fields" : ["content", "name.*^5"],
+            "query" : "foo bar baz"
+        }
     }
 }
 --------------------------------------------------
+// CONSOLE
 
 [float]
-=== Flags
+==== Flags
 `simple_query_string` support multiple flags to specify which parsing features
 should be enabled. It is specified as a `|`-delimited string with the
 `flags` parameter:
 
 [source,js]
 --------------------------------------------------
+GET /_search
 {
-    "simple_query_string" : {
-        "query" : "foo | bar + baz*",
-        "flags" : "OR|AND|PREFIX"
+    "query": {
+        "simple_query_string" : {
+            "query" : "foo | bar + baz*",
+            "flags" : "OR|AND|PREFIX"
+        }
     }
 }
 --------------------------------------------------
+// CONSOLE
 
 The available flags are: `ALL`, `NONE`, `AND`, `OR`, `NOT`, `PREFIX`, `PHRASE`,
 `PRECEDENCE`, `ESCAPE`, `WHITESPACE`, `FUZZY`, `NEAR`, and `SLOP`.

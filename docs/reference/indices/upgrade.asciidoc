@@ -1,9 +1,53 @@
 [[indices-upgrade]]
 == Upgrade
 
-The upgrade API allows to upgrade one or more indices to the latest format
-through an API. The upgrade process converts any segments written
-with previous formats.
+The upgrade API allows to upgrade one or more indices to the latest Lucene
+format through an API. The upgrade process converts any segments written with
+older formats.
+
+[IMPORTANT]
+===================================================
+
+**The upgrade API in its current form will not help you to migrate indices
+created in Elasticsearch 1.x to 5.x.**
+
+The upgrade API rewrites an index in the latest Lucene format, but it still
+retains the original data structures that were used when the index was first
+created.  For instance:
+
+* Doc-values on numeric fields used to use BinaryDocValues, but now use dedicated NumericDocValues.
+* The parent-child feature has been completely rewritten to use a new data structure.
+* Geo-point fields now require doc values and the Lucene index where, previously, they relied on in-memory calculations.
+
+**Migrating 1.x indices to 5.x**
+
+The only way to prepare an index created in 1.x for use in 5.x is to **reindex
+your data** in a cluster running Elasticsearch 2.3.x, which you can do with
+the new <<docs-reindex,reindex API>>.
+
+The steps to do this are as follows:
+
+1. Create a new index (e.g. `new_index`) with the correct settings and
+   mappings.  These can be retrieved from the old index with the
+   <<indices-get-index,get-index>> API.
+
+2. Reindex from `old_index` to `new_index` with the
+   <<docs-reindex,reindex API>>.
+
+3. Retrieve a list of any aliases associated with the `old_index` using the
+   <<alias-retrieving,get-alias API>>.
+
+4. Delete the `old_index` using the <<indices-delete-index,delete index API>>.
+
+5. Add an alias called `old_index` to the `new_index` along with any aliases
+   returned in step 3, using the <<indices-aliases,update aliases API>>.
+
+In the future, we plan to change the upgrade API to perform a reindex-in-
+place.  In other words, it would reindex data from `old_index` to `.old_index`
+then atomically delete `old_index` and rename `.old_index` to `old_index`.
+
+===================================================
+
 
 [float]
 === Start an upgrade
@@ -15,7 +59,7 @@ $ curl -XPOST 'http://localhost:9200/twitter/_upgrade'
 
 NOTE: Upgrading is an I/O intensive operation, and is limited to processing a
 single shard per node at a time.  It also is not allowed to run at the same
-time as optimize.
+time as an optimize/force-merge.
 
 This call will block until the upgrade is complete. If the http connection
 is lost, the request will continue in the background, and
