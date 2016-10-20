@@ -56,8 +56,8 @@ import org.elasticsearch.discovery.DiscoveryModule;
 import org.elasticsearch.discovery.DiscoverySettings;
 import org.elasticsearch.discovery.zen.ElectMasterService;
 import org.elasticsearch.discovery.zen.ZenDiscovery;
-import org.elasticsearch.discovery.zen.fd.FaultDetection;
-import org.elasticsearch.discovery.zen.ping.unicast.UnicastZenPing;
+import org.elasticsearch.discovery.zen.FaultDetection;
+import org.elasticsearch.discovery.zen.UnicastZenPing;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.env.NodeEnvironment;
 import org.elasticsearch.gateway.GatewayService;
@@ -328,7 +328,6 @@ public final class ClusterSettings extends AbstractScopedSettings {
                     NodeEnvironment.NODE_ID_SEED_SETTING,
                     DiscoverySettings.INITIAL_STATE_TIMEOUT_SETTING,
                     DiscoveryModule.DISCOVERY_TYPE_SETTING,
-                    DiscoveryModule.ZEN_MASTER_SERVICE_TYPE_SETTING,
                     FaultDetection.PING_RETRIES_SETTING,
                     FaultDetection.PING_TIMEOUT_SETTING,
                     FaultDetection.REGISTER_CONNECTION_LISTENER_SETTING,

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.elasticsearch.discovery.zen.ping.unicast;
+package org.elasticsearch.discovery.zen;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import org.apache.logging.log4j.message.ParameterizedMessage;
@@ -44,9 +44,6 @@ import org.elasticsearch.common.util.concurrent.AbstractRunnable;
 import org.elasticsearch.common.util.concurrent.ConcurrentCollections;
 import org.elasticsearch.common.util.concurrent.EsExecutors;
 import org.elasticsearch.common.util.concurrent.EsRejectedExecutionException;
-import org.elasticsearch.discovery.zen.ElectMasterService;
-import org.elasticsearch.discovery.zen.ping.PingContextProvider;
-import org.elasticsearch.discovery.zen.ping.ZenPing;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.ConnectTransportException;
 import org.elasticsearch.transport.RemoteTransportException;
@@ -84,7 +81,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static org.elasticsearch.common.util.concurrent.ConcurrentCollections.newConcurrentMap;
-import static org.elasticsearch.discovery.zen.ping.ZenPing.PingResponse.readPingResponse;
+import static org.elasticsearch.discovery.zen.ZenPing.PingResponse.readPingResponse;
 
 public class UnicastZenPing extends AbstractLifecycleComponent implements ZenPing {
 
@@ -103,7 +100,6 @@ public class UnicastZenPing extends AbstractLifecycleComponent implements ZenPin
     private final ThreadPool threadPool;
     private final TransportService transportService;
     private final ClusterName clusterName;
-    private final ElectMasterService electMasterService;
 
     private final int concurrentConnects;
 
@@ -132,12 +128,11 @@ public class UnicastZenPing extends AbstractLifecycleComponent implements ZenPin
 
     @Inject
     public UnicastZenPing(Settings settings, ThreadPool threadPool, TransportService transportService,
-                          ElectMasterService electMasterService, @Nullable Set<UnicastHostsProvider> unicastHostsProviders) {
+                          @Nullable Set<UnicastHostsProvider> unicastHostsProviders) {
         super(settings);
         this.threadPool = threadPool;
         this.transportService = transportService;
         this.clusterName = ClusterName.CLUSTER_NAME_SETTING.get(settings);
-        this.electMasterService = electMasterService;
 
         if (unicastHostsProviders != null) {
             for (UnicastHostsProvider unicastHostsProvider : unicastHostsProviders) {
@@ -361,7 +356,7 @@ public class UnicastZenPing extends AbstractLifecycleComponent implements ZenPin
         }
 
         // sort the nodes by likelihood of being an active master
-        List<DiscoveryNode> sortedNodesToPing = electMasterService.sortByMasterLikelihood(nodesToPingSet);
+        List<DiscoveryNode> sortedNodesToPing = ElectMasterService.sortByMasterLikelihood(nodesToPingSet);
 
         // new add the unicast targets first
         List<DiscoveryNode> nodesToPing = CollectionUtils.arrayAsArrayList(configuredTargetNodes);
