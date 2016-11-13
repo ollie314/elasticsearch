@@ -35,10 +35,12 @@ import org.elasticsearch.discovery.MasterNotDiscoveredException;
 import org.elasticsearch.discovery.zen.ZenDiscovery;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.script.Script;
-import org.elasticsearch.script.ScriptService;
+import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.test.ESIntegTestCase;
 import org.elasticsearch.test.ESIntegTestCase.ClusterScope;
 import org.elasticsearch.test.ESIntegTestCase.Scope;
+
+import java.util.Collections;
 
 import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertExists;
 import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertHitCount;
@@ -122,12 +124,14 @@ public class NoMasterNodeIT extends ESIntegTestCase {
         checkWriteAction(
                 false, timeout,
                 client().prepareUpdate("test", "type1", "1")
-                        .setScript(new Script("test script", ScriptService.ScriptType.INLINE, null, null)).setTimeout(timeout));
+                        .setScript(new Script(
+                            ScriptType.INLINE, Script.DEFAULT_SCRIPT_LANG, "test script", Collections.emptyMap())).setTimeout(timeout));
 
         checkWriteAction(
                 autoCreateIndex, timeout,
                 client().prepareUpdate("no_index", "type1", "1")
-                        .setScript(new Script("test script", ScriptService.ScriptType.INLINE, null, null)).setTimeout(timeout));
+                        .setScript(new Script(
+                            ScriptType.INLINE, Script.DEFAULT_SCRIPT_LANG, "test script", Collections.emptyMap())).setTimeout(timeout));
 
 
         checkWriteAction(false, timeout,
@@ -219,7 +223,7 @@ public class NoMasterNodeIT extends ESIntegTestCase {
         ensureSearchable("test1", "test2");
 
         ClusterStateResponse clusterState = client().admin().cluster().prepareState().get();
-        logger.info("Cluster state:\n{}", clusterState.getState().prettyPrint());
+        logger.info("Cluster state:\n{}", clusterState.getState());
 
         internalCluster().stopRandomDataNode();
         assertTrue(awaitBusy(() -> {

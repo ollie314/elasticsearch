@@ -31,7 +31,7 @@ import java.util.Map;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
-import static org.elasticsearch.script.ScriptService.ScriptType.INLINE;
+import static org.elasticsearch.script.ScriptType.INLINE;
 import static org.elasticsearch.script.mustache.CustomMustacheFactory.CONTENT_TYPE_PARAM;
 import static org.elasticsearch.script.mustache.CustomMustacheFactory.JSON_MIME_TYPE;
 import static org.elasticsearch.script.mustache.CustomMustacheFactory.PLAIN_TEXT_MIME_TYPE;
@@ -51,6 +51,8 @@ public class CustomMustacheFactoryTests extends ESTestCase {
         e = expectThrows(IllegalArgumentException.class, () -> CustomMustacheFactory.createEncoder("test"));
         assertThat(e.getMessage(), equalTo("No encoder found for MIME type [test]"));
 
+        assertThat(CustomMustacheFactory.createEncoder(CustomMustacheFactory.JSON_MIME_TYPE_WITH_CHARSET),
+            instanceOf(CustomMustacheFactory.JsonEscapeEncoder.class));
         assertThat(CustomMustacheFactory.createEncoder(CustomMustacheFactory.JSON_MIME_TYPE),
                 instanceOf(CustomMustacheFactory.JsonEscapeEncoder.class));
         assertThat(CustomMustacheFactory.createEncoder(CustomMustacheFactory.PLAIN_TEXT_MIME_TYPE),
