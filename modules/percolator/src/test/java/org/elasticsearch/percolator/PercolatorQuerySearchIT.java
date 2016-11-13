@@ -34,7 +34,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.script.MockScriptPlugin;
 import org.elasticsearch.script.Script;
-import org.elasticsearch.script.ScriptService;
+import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.test.ESSingleNodeTestCase;
@@ -90,7 +90,7 @@ public class PercolatorQuerySearchIT extends ESSingleNodeTestCase {
         ensureGreen();
         client().prepareIndex("index", "type", "1")
             .setSource(jsonBuilder().startObject().field("query", QueryBuilders.scriptQuery(
-                new Script("1==1", ScriptService.ScriptType.INLINE, CustomScriptPlugin.NAME, null))).endObject())
+                new Script(ScriptType.INLINE, CustomScriptPlugin.NAME, "1==1", Collections.emptyMap()))).endObject())
             .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
             .execute().actionGet();
         PercolateResponse response = preparePercolate(client())
